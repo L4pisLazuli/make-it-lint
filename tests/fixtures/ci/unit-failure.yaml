@@ -1,0 +1,12 @@
+title: order-total parser drifted from the stored baseline
+what_happened: |
+  tests/test_totals.py failed because the parser started emitting a
+  tax_included field while tests/baselines/q3-totals.txt still had the
+  pre-tax summary.
+fingerprint: data:parser-order-drift
+source: ci-log:unit
+actor: ci
+reporter: ci
+run: unit
+kind: data
+decidable: yes

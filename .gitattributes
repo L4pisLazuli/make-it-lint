@@ -1,0 +1,8 @@
+# Check out text with LF on every OS. bin/mil, hooks, and checks run
+# through their shebang under sh / python3, and a CRLF line breaks that.
+* text=auto eol=lf
+
+# Ledger records, fixtures, and evidence are compared byte for byte
+# (evidence sha256, bad/good proofs). Never convert line endings there.
+.make-it-lint/ledger/** -text
+**/.make-it-lint/ledger/** -text

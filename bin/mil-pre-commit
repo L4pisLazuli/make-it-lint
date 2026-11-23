@@ -1,0 +1,42 @@
+#!/bin/sh
+# mil-pre-commit: run make-it-lint product checks and governance guard on
+# what is about to be committed.
+#
+# Installed by `mil-setup --hooks`. Checks the staged git index against
+# HEAD via `mil ci --staged` (without touching untracked files or needing
+# tar). Skip once with `git commit --no-verify`.
+set -eu
+
+top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$top"
+if [ ! -f bin/mil ]; then
+	exit 0
+fi
+if ! git ls-files --error-unmatch .make-it-lint/config.yaml >/dev/null 2>&1; then
+	exit 0
+fi
+has_py=0
+for candidate in python3 python; do
+	if command -v "$candidate" >/dev/null 2>&1 &&
+		"$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+		has_py=1
+		break
+	fi
+done
+if [ "$has_py" -ne 1 ] && command -v py >/dev/null 2>&1 &&
+	py -3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+	has_py=1
+fi
+if [ "$has_py" -ne 1 ]; then
+	printf 'mil-pre-commit: Python 3.10+ not found; make-it-lint checks skipped\n' >&2
+	exit 0
+fi
+
+status=0
+PYTHONDONTWRITEBYTECODE=1 sh bin/mil ci --staged --root "$top" || status=$?
+if [ "$status" -eq 1 ]; then
+	printf 'mil-pre-commit: a block check or protected-path guard failed; fix the hit above, or skip once with git commit --no-verify\n' >&2
+elif [ "$status" -ne 0 ]; then
+	printf 'mil-pre-commit: mil ci exited %s; see the error above, or skip once with git commit --no-verify\n' "$status" >&2
+fi
+exit "$status"

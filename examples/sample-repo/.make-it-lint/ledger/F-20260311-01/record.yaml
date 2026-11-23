@@ -1,0 +1,45 @@
+id: F-20260311-01
+title: Collect pull request changed a path outside the allowlist
+origin:
+  inventory_id: inv-scope-001
+  source: review comment on a collect pull request
+  actor: cloud-agent
+  reporter: reviewer
+what_happened: |
+  A collect-type pull request added a new inventory row and also
+  changed the runner timeout in config/runner.yaml. Collect is only
+  allowed to touch inventory/ and data/collected/.
+human_words: null
+occurrences:
+  - at: 2026-03-11
+    ref: pull request (anonymized)
+fingerprint: scope:path-outside-allowlist
+classification:
+  kind: scope
+  decidable: "yes"
+layer: ci
+layer_reason: The allowlist depends on PR kind and the set of changed paths, not on one file.
+check:
+  id: MIL-SCOPE-001
+  tool: script
+  path: .make-it-lint/checks/scope_paths.py
+  message: |
+    This collect pull request may only change inventory/ and data/collected/. Move config/runner.yaml to a separate pull request.
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad, green-on-good
+enforcement:
+  state: shadow
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-03-11
+  - state: proven
+    at: 2026-03-13
+    note: mil prove
+  - state: shadow
+    at: 2026-03-14
+    from_state: proven
+    approved_by: "@ledger-owner"

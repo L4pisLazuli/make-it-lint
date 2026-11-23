@@ -1,0 +1,36 @@
+#!/bin/sh
+# mil-setup — install or refresh make-it-lint into another repository.
+# Thin POSIX sh wrapper delegating to lib/mil/setup_repo.py (see bin/mil-setup.cmd on Windows).
+set -eu
+
+bindir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+root=$(CDPATH='' cd -- "$bindir/.." && pwd)
+pyroot=$(CDPATH='' cd -- "$bindir/.." && (pwd -W 2>/dev/null || pwd))
+
+if [ ! -f "$root/lib/mil/setup_repo.py" ]; then
+  printf 'mil-setup: expected installer module at %s/lib/mil/setup_repo.py\n' "$root" >&2
+  exit 2
+fi
+
+case "$(uname -s 2>/dev/null || true)" in
+  MINGW*|MSYS*|CYGWIN*) path_sep=';' ;;
+  *) path_sep=':' ;;
+esac
+PYTHONPATH="$pyroot/lib${PYTHONPATH:+$path_sep$PYTHONPATH}"
+PYTHONDONTWRITEBYTECODE=1
+PYTHONIOENCODING=utf-8
+export PYTHONPATH PYTHONDONTWRITEBYTECODE PYTHONIOENCODING
+
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 &&
+    "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+    exec "$candidate" -m mil.setup_repo "$@"
+  fi
+done
+if command -v py >/dev/null 2>&1 &&
+  py -3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+  exec py -3 -m mil.setup_repo "$@"
+fi
+
+printf 'mil-setup: Python 3.10+ (python3, python, or py -3) not found on PATH\n' >&2
+exit 2

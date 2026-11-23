@@ -1,0 +1,51 @@
+id: F-20260609-01
+title: Pull request regenerated a derived catalog
+origin:
+  source: merge conflict on generated/catalog.json
+  actor: cloud-agent
+  reporter: reviewer
+what_happened: |
+  Two parallel pull requests each regenerated generated/catalog.json from
+  src/notes/. The merge conflict was in a derived file. The notes belong
+  in the pull request; the catalog should be rebuilt after merge.
+human_words: null
+occurrences:
+  - at: 2026-06-09
+    ref: pull request (anonymized)
+  - at: 2026-06-21
+    ref: second pull request (anonymized)
+fingerprint: scope:generated-file-in-pr
+classification:
+  kind: scope
+  decidable: "yes"
+layer: ci
+layer_reason: Whether a path is generated is a property of the diff, not of one file's contents.
+check:
+  id: MIL-GEN-001
+  tool: script
+  path: .make-it-lint/checks/generated_in_pr.py
+  message: |
+    Do not change generated files in a pull request; regenerate them after merge.
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad, green-on-good
+enforcement:
+  state: comment
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-06-09
+  - state: proven
+    at: 2026-06-11
+    note: mil prove
+  - state: shadow
+    at: 2026-06-12
+    from_state: proven
+    approved_by: "@ledger-owner"
+  - state: comment
+    at: 2026-06-26
+    from_state: shadow
+    approved_by: "@ledger-owner"
+    note: 2 weeks in shadow with 0 false positives

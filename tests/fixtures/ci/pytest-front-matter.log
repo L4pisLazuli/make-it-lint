@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.3.3 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /work/catalog
+collected 14 items
+
+tests/test_parse_front_matter.py::test_keeps_existing_order FAILED        [  7%]
+tests/test_parse_front_matter.py::test_round_trip_dashes PASSED           [ 14%]
+tests/test_parse_front_matter.py::test_rejects_tab_indentation PASSED     [ 21%]
+
+=================================== FAILURES ===================================
+_________________________ test_keeps_existing_order __________________________
+
+    def test_keeps_existing_order():
+        parsed = load_front_matter(NOTE)
+>       assert list(parsed) == ["status", "title", "updated"]
+E       AssertionError: key order ['title', 'status', 'updated'] != ['status', 'title', 'updated']
+
+tests/test_parse_front_matter.py:41: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_parse_front_matter.py::test_keeps_existing_order - AssertionError
+========================= 1 failed, 13 passed in 0.41s =========================
+##[error]Process completed with exit code 1.

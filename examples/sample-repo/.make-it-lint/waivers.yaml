@@ -1,0 +1,10 @@
+- check: MIL-SCOPE-001
+  paths:
+    - config/runner.yaml
+  reason: >
+    A collect pass had to land a one-line runner timeout together with the
+    inventory extract because the extract hung without it. Split the runner
+    change out before the waiver expires.
+  approved_by: "@ledger-owner"
+  ref: pull request (anonymized)
+  expires: 2027-03-01

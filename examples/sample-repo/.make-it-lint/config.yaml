@@ -1,0 +1,52 @@
+contract: make-it-lint/v1
+ledger:
+  kinds:
+    - boot
+    - scope
+    - data
+    - freeze
+    - reporting
+    - judgment
+    - unclassified
+  kind_defaults:
+    scope:
+      layer: ci
+      tool: script
+    data:
+      layer: verify
+      tool: property
+    freeze:
+      layer: verify
+      tool: model
+    reporting:
+      layer: test
+      tool: test
+    boot:
+      layer: hook
+      tool: hook
+    judgment:
+      state: human_review
+checks:
+  MIL-SCOPE-001:
+    allow_by_kind:
+      collect:
+        - inventory/
+        - data/collected/
+  MIL-BASELINE-001:
+    baseline_paths:
+      - tests/baselines/
+    test_paths:
+      - tests/
+  MIL-SUITE-001:
+    runner_names:
+      - run_suite.py
+  MIL-GEN-001:
+    generated_paths:
+      - generated/
+  MIL-PACK-001:
+    module: pack_pick.py
+    trials: 20
+  MIL-HOOK-001:
+    protected_branches:
+      - main
+      - "release/*"

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/L4pisLazuli/make-it-lint/schema/waiver.schema.json",
+  "title": "make-it-lint waivers",
+  "description": "make-it-lint/v1. expires is required; mil lint fails expired entries.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["check", "paths", "reason", "approved_by", "expires"],
+    "properties": {
+      "check": { "type": "string", "minLength": 1 },
+      "paths": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string", "minLength": 1 }
+      },
+      "reason": { "type": "string", "minLength": 1 },
+      "approved_by": { "type": "string", "minLength": 1 },
+      "ref": { "type": "string" },
+      "expires": {
+        "type": "string",
+        "format": "date",
+        "description": "Expiry date. Open-ended waivers are not allowed."
+      }
+    }
+  }
+}

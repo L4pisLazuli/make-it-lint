@@ -1,0 +1,9 @@
+items:
+  - id: widget-14mm
+    mass_g: 26.4
+    material: 304-ss
+    vendor: north-mill
+  - id: bushing-8mm
+    mass_g: 4.1
+    material: ptfe
+    vendor: east-polymer

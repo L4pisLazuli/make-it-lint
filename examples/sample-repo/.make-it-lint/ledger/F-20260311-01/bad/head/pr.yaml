@@ -1,0 +1,4 @@
+kind: collect
+branch: collect/weekly-inventory
+labels:
+  - collect

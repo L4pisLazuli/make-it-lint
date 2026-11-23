@@ -1,0 +1,14 @@
+contract: make-it-lint/v1
+ledger:
+  kinds:
+    - boot
+    - scope
+    - data
+    - freeze
+    - reporting
+    - judgment
+    - unclassified
+checks:
+  MIL-DRAFT-001:
+    published_paths:
+      - published/

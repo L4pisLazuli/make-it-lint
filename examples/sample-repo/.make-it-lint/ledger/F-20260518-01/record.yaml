@@ -1,0 +1,40 @@
+id: F-20260518-01
+title: Test suite returned success while every case failed
+origin:
+  source: CI job green with a log full of assertion errors
+  actor: local-agent
+  reporter: developer
+what_happened: |
+  tools/run_suite.py collected assertion failures, printed them, then
+  called sys.exit(0). A scheduler that only looks at the process status
+  treated a fully-red run as success.
+human_words: null
+occurrences:
+  - at: 2026-05-18
+    ref: ci job (anonymized)
+fingerprint: data:suite-exit-ignores-failures
+classification:
+  kind: data
+  decidable: "yes"
+layer: test
+layer_reason: The bug is in the suite runner's exit code, which a unit test of the runner can lock.
+check:
+  id: MIL-SUITE-001
+  tool: script
+  path: .make-it-lint/checks/suite_exit
+  message: |
+    Suite runner ignores failures (sys.exit(0) after recording failed cases).
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad, green-on-good
+enforcement:
+  state: proven
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-05-18
+  - state: proven
+    at: 2026-05-20
+    note: mil prove

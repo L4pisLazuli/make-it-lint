@@ -1,0 +1,27 @@
+id: F-20260722-01
+title: Launch defaults selected a disallowed fast mode
+origin:
+  source: session started with a fast-mode default the project forbids
+  actor: cloud-agent
+  reporter: developer
+what_happened: |
+  The external launcher's default model/budget pair is a fast variant this
+  project does not allow. The default lives in the launcher, not in a file
+  this repository can hook, so there is no layer that can stop it here.
+human_words: null
+occurrences:
+  - at: 2026-07-22
+    ref: session (anonymized)
+fingerprint: boot:disallowed-fast-default
+classification:
+  kind: boot
+  decidable: partial
+layer: null
+layer_reason: The default lives in an external launcher; this repository has no hook that can see it.
+enforcement:
+  state: open
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-07-22

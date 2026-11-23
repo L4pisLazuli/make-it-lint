@@ -1,0 +1,46 @@
+id: F-20260814-01
+title: Packer dropped a pick-list line when more than one SKU was present
+origin:
+  source: warehouse pick run that shipped short against the order
+  actor: local-agent
+  reporter: developer
+what_happened: |
+  tools/pack_pick.py dropped the last line of a pick list whenever the
+  list had two or more SKUs. The packed tote qty no longer matched the
+  order, and the missing line was a real SKU from inventory/.
+human_words: null
+occurrences:
+  - at: 2026-08-14
+    ref: pick run (anonymized)
+fingerprint: data:pack-drops-pick-line
+classification:
+  kind: data
+  decidable: "yes"
+layer: verify
+layer_reason: The invariant is pack() membership of (sku, qty) for any list, which a seeded property check can draw.
+check:
+  id: MIL-PACK-001
+  tool: property
+  path: .make-it-lint/checks/pack_invariant.py
+  message: |
+    pack() must keep every pick line (sku, qty) for random lists drawn from MIL_SEED.
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad 2/2, green-on-good 2/2
+  seed: 0
+evidence:
+  - kind: counterexample
+    path: .make-it-lint/ledger/F-20260814-01/evidence/counterexample.log
+    sha256: d415fe1431afdb3bdc6a49d9aa87053e420c053e936827b47e548b09bafa1db4
+    note: three-SKU warehouse pick list (WIDGET-04, WIDGET-09, BOLT-12) that packed only two lines
+enforcement:
+  state: proven
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-08-14
+  - state: proven
+    at: 2026-08-16
+    note: mil prove

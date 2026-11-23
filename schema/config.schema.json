@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/L4pisLazuli/make-it-lint/schema/config.schema.json",
+  "title": "make-it-lint config.yaml",
+  "description": "make-it-lint/v1 self-contained configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract"],
+  "properties": {
+    "contract": {
+      "const": "make-it-lint/v1"
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "kind_defaults": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "layer": {
+                "enum": ["architecture", "type", "lint", "test", "verify", "hook", "ci", null]
+              },
+              "tool": {
+                "enum": ["script", "semgrep", "ast-grep", "test", "hook", "property", "runtime", "model", null]
+              },
+              "state": {
+                "enum": ["open", "proven", "shadow", "comment", "block", "human_review", "retired"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commit": { "type": "boolean" }
+      }
+    },
+    "protected_paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}

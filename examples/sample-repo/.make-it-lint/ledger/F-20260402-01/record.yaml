@@ -1,0 +1,40 @@
+id: F-20260402-01
+title: Test baseline rewritten in the same commit as the test
+origin:
+  source: failing unit job after a parser change
+  actor: cloud-agent
+  reporter: reviewer
+what_happened: |
+  A change to the order-total parser updated tests/test_totals.py and
+  rewrote tests/baselines/q3-totals.txt in the same commit. The suite
+  stayed green while the stored expected output absorbed the drift.
+human_words: null
+occurrences:
+  - at: 2026-04-02
+    ref: pull request (anonymized)
+fingerprint: data:baseline-updated-with-test
+classification:
+  kind: data
+  decidable: "yes"
+layer: test
+layer_reason: "The failure is a test-suite invariant: baselines are the expected output, not a dump of the current run."
+check:
+  id: MIL-BASELINE-001
+  tool: script
+  path: .make-it-lint/checks/baseline_same_commit.py
+  message: |
+    Test code and stored baselines changed together. Split the baseline update so a regression cannot hide in the expected output.
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad, green-on-good
+enforcement:
+  state: proven
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-04-02
+  - state: proven
+    at: 2026-04-04
+    note: mil prove

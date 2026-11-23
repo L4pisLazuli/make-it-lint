@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": "src/notes/alpha.md",
+      "title": "Alpha pass notes"
+    },
+    {
+      "path": "src/notes/beta.md",
+      "title": "Beta pass notes"
+    },
+    {
+      "path": "src/notes/gamma.md",
+      "title": "Gamma pass notes"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+#!/bin/sh
+# mil — ledger, proof, enforcement, and governance CLI for make-it-lint.
+# POSIX sh wrapper so the Python package can live in lib/mil.
+set -eu
+
+bindir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+root=$(CDPATH='' cd -- "$bindir/.." && pwd)
+pyroot=$(CDPATH='' cd -- "$bindir/.." && (pwd -W 2>/dev/null || pwd))
+
+if [ ! -d "$root/lib/mil" ]; then
+  printf 'mil: expected Python package at %s/lib/mil\n' "$root" >&2
+  exit 2
+fi
+
+case "$(uname -s 2>/dev/null || true)" in
+  MINGW*|MSYS*|CYGWIN*) path_sep=';' ;;
+  *) path_sep=':' ;;
+esac
+PYTHONPATH="$pyroot/lib${PYTHONPATH:+$path_sep$PYTHONPATH}"
+PYTHONDONTWRITEBYTECODE=1
+PYTHONIOENCODING=utf-8
+export PYTHONPATH PYTHONDONTWRITEBYTECODE PYTHONIOENCODING
+
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 &&
+    "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+    exec "$candidate" -m mil "$@"
+  fi
+done
+if command -v py >/dev/null 2>&1 &&
+  py -3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+  exec py -3 -m mil "$@"
+fi
+
+printf 'mil: Python 3.10+ (python3, python, or py -3) not found on PATH\n' >&2
+exit 2

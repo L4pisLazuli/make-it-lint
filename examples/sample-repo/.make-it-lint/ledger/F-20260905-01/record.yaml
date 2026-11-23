@@ -1,0 +1,40 @@
+id: F-20260905-01
+title: Agent force-pushed an amended hotfix directly to main
+origin:
+  source: overwritten release commit on origin/main during hotfix session
+  actor: local-agent
+  reporter: developer
+what_happened: |
+  After amending an inventory hotfix commit locally, the agent ran
+  `git push --force origin HEAD:main`, overwriting a release commit that
+  had landed in the meantime.
+human_words: null
+occurrences:
+  - at: 2026-09-05
+    ref: incident (anonymized)
+fingerprint: boot:force-push-protected-branch
+classification:
+  kind: boot
+  decidable: "yes"
+layer: hook
+layer_reason: A destructive remote git push must be stopped before the shell tool executes, not after CI runs.
+check:
+  id: MIL-HOOK-001
+  tool: hook
+  path: .make-it-lint/checks/no_force_push_protected.py
+  message: |
+    Force-pushing to a protected branch is forbidden; push a feature branch and open a pull request.
+proof:
+  bad: bad/
+  good: good/
+  last_result: red-on-bad, green-on-good
+enforcement:
+  state: proven
+  promote_when: 2 weeks or 10 shadow runs, 0 false positives; human OK required to promote
+owner: "@ledger-owner"
+history:
+  - state: open
+    at: 2026-09-05
+  - state: proven
+    at: 2026-09-05
+    note: mil prove

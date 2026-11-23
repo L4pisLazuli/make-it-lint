@@ -1,0 +1,81 @@
+# Copy to .github/workflows/make-it-lint.yml in the adopter repo.
+# Requires bin/mil and lib/mil from the make-it-lint kit (see README).
+#
+# shadow  = report hits in CI log + events, no PR comment, job stays green
+# comment = GitHub annotations plus a PR comment, job stays green
+# block   = annotations plus a PR comment, job fails
+#
+# POSIX sh + Python 3 stdlib only, besides actions/checkout and
+# actions/setup-python.
+
+name: make-it-lint
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  make-it-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.10"
+
+      - name: mil lint and prove
+        run: |
+          set -eu
+          if [ -f bin/mil ]; then
+            mil_run() { sh bin/mil "$@"; }
+          else
+            mil_run() { mil "$@"; }
+          fi
+          mkdir -p mil-events
+          mil_run lint
+          mil_run prove --all --dry-run --verify-recorded --events mil-events/events.ndjson
+
+      - name: product checks and governance guard
+        env:
+          MIL_PR_BRANCH: ${{ github.head_ref || github.ref_name }}
+          MIL_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -eu
+          if [ -f bin/mil ]; then
+            mil_run() { sh bin/mil "$@"; }
+          else
+            mil_run() { mil "$@"; }
+          fi
+          mkdir -p mil-events
+          BASE_SHA="${PR_BASE_SHA:-${PUSH_BEFORE_SHA:-}}"
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            mil_run ci --base-ref "$BASE_SHA" --head-ref HEAD --json-summary mil-ci-summary.json --events mil-events/events.ndjson
+          else
+            mil_run ci --head-ref HEAD --json-summary mil-ci-summary.json --events mil-events/events.ndjson
+          fi
+
+      - name: upload events
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mil-events
+          path: mil-events/events.ndjson
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: PR comment
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 .github/scripts/pr-comment.py mil-ci-summary.json

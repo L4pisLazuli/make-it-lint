@@ -1,0 +1,45 @@
+contract: make-it-lint/v1
+ledger:
+  kinds:
+    - architecture
+    - type
+    - lint
+    - test
+    - boot
+    - scope
+    - data
+    - freeze
+    - reporting
+    - judgment
+    - unclassified
+  kind_defaults:
+    architecture:
+      layer: architecture
+      tool: script
+    type:
+      layer: type
+      tool: script
+    lint:
+      layer: lint
+      tool: script
+    test:
+      layer: test
+      tool: test
+    scope:
+      layer: ci
+      tool: script
+    data:
+      layer: verify
+      tool: property
+    freeze:
+      layer: verify
+      tool: model
+    reporting:
+      layer: test
+      tool: test
+    boot:
+      layer: hook
+      tool: hook
+    judgment:
+      state: human_review
+checks: {}

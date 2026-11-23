@@ -1,0 +1,6 @@
+test	Set up job	2026-11-16T10:00:00.0000000Z Current runner version: '2.300.0'
+test	Run tests	2026-11-16T10:00:05.0000000Z ##[group]Run python3 -m unittest
+test	Run tests	2026-11-16T10:00:06.0000000Z src/score.py:12: AssertionError: expected 6, got 7
+test	Run tests	2026-11-16T10:00:06.1000000Z FAILED (failures=1)
+test	Run tests	2026-11-16T10:00:06.2000000Z ##[endgroup]
+test	Run tests	2026-11-16T10:00:07.0000000Z ##[error]Process completed with exit code 1.

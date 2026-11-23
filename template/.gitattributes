@@ -1,0 +1,13 @@
+# make-it-lint: keep shell and Python entry points LF so their shebang
+# still works after a Windows checkout.
+bin/mil text eol=lf
+bin/mil.cmd text eol=lf
+bin/mil-pre-commit text eol=lf
+lib/mil/** text eol=lf
+.make-it-lint/checks/** text eol=lf
+.github/scripts/** text eol=lf
+.claude/skills/make-it-lint/** text eol=lf
+.cursor/skills/make-it-lint/** text eol=lf
+# Ledger records, fixtures, and evidence are compared byte for byte
+# (evidence sha256, bad/good proofs). Never convert line endings there.
+.make-it-lint/ledger/** -text

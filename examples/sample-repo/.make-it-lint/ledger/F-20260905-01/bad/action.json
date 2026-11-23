@@ -1,0 +1,11 @@
+{
+  "tool": "Bash",
+  "kind": "command",
+  "command": "git commit --amend --no-edit && git push --force origin HEAD:main",
+  "path": "",
+  "paths": [],
+  "tool_input": {
+    "command": "git commit --amend --no-edit && git push --force origin HEAD:main",
+    "description": "Amend inventory hotfix and push to main"
+  }
+}

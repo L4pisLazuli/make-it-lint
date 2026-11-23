@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/L4pisLazuli/make-it-lint/schema/incident.schema.json",
+  "title": "make-it-lint ledger record",
+  "description": "make-it-lint/v1. State-dependent invariants and allowed history transitions are checked by mil lint.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "origin",
+    "what_happened",
+    "occurrences",
+    "fingerprint",
+    "enforcement",
+    "owner",
+    "history"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^F-[0-9]{8}-[0-9]{2,}$",
+      "description": "F-YYYYMMDD-NN. NN is at least two digits."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "origin": { "$ref": "#/$defs/origin" },
+    "what_happened": { "type": "string", "minLength": 1 },
+    "human_words": { "type": ["string", "null"] },
+    "occurrences": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/occurrence" }
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*:[a-z0-9][a-z0-9._-]*$",
+      "description": "<kind>:<slug>, lower case, no spaces."
+    },
+    "classification": { "$ref": "#/$defs/classification" },
+    "layer": {
+      "enum": ["architecture", "type", "lint", "test", "verify", "hook", "ci", null]
+    },
+    "layer_reason": { "type": "string", "minLength": 1 },
+    "check": { "$ref": "#/$defs/check" },
+    "proof": { "$ref": "#/$defs/proof" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_item" }
+    },
+    "covers": { "$ref": "#/$defs/covers" },
+    "enforcement": { "$ref": "#/$defs/enforcement" },
+    "owner": { "type": "string", "minLength": 1 },
+    "history": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/history_entry" }
+    }
+  },
+  "dependentRequired": {
+    "layer": ["layer_reason"]
+  },
+  "$defs": {
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "actor", "reporter"],
+      "properties": {
+        "inventory_id": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "actor": { "type": "string", "minLength": 1 },
+        "reporter": { "type": "string", "minLength": 1 }
+      }
+    },
+    "occurrence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at"],
+      "properties": {
+        "at": { "type": "string", "format": "date" },
+        "ref": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decidable"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "decidable": { "type": "string", "enum": ["yes", "partial", "no"] }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "tool", "path", "message"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "tool": {
+          "type": "string",
+          "enum": ["script", "semgrep", "ast-grep", "test", "hook", "property", "runtime", "model"]
+        },
+        "path": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bad", "good"],
+      "properties": {
+        "bad": { "type": "string", "minLength": 1 },
+        "good": { "type": "string", "minLength": 1 },
+        "last_result": { "type": ["string", "null"] },
+        "seed": { "type": "integer" }
+      }
+    },
+    "evidence_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        { "required": ["path", "sha256"] },
+        { "required": ["url"] }
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["video", "screenshot", "trace", "diagram", "counterexample", "log", "transcript"]
+        },
+        "path": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "note": { "type": "string", "minLength": 1 }
+      },
+      "dependentRequired": {
+        "path": ["sha256"]
+      }
+    },
+    "covers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "synced_commit"],
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "synced_commit": { "type": "string", "minLength": 1 }
+      }
+    },
+    "enforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": { "$ref": "#/$defs/state" },
+        "promote_when": { "type": "string" }
+      }
+    },
+    "history_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "at"],
+      "properties": {
+        "state": { "$ref": "#/$defs/state" },
+        "at": { "type": "string", "format": "date" },
+        "from_state": { "$ref": "#/$defs/state" },
+        "approved_by": { "type": "string", "minLength": 1 },
+        "by": { "type": "string", "minLength": 1 },
+        "note": { "type": "string" }
+      }
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "open",
+        "proven",
+        "shadow",
+        "comment",
+        "block",
+        "human_review",
+        "retired"
+      ]
+    }
+  }
+}

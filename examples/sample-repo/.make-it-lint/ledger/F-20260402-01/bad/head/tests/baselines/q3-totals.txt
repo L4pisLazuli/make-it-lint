@@ -1,0 +1,7 @@
+PARSE tests/fixtures/orders-2024-q3.csv
+rows 4
+sum_qty 63
+sum_amount 665.50
+dup_keys 0
+sku_count 3
+tax_included 1
